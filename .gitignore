@@ -1,13 +1,20 @@
 *.class
 *.log
 
-# sbt specific
+# Intelij Idea specific
+.idea/
+.idea-modules/
+*.iml
+
+# Scala-IDE specific
+.scala_dependencies
+
+# SBT specific
 dist/*
 target/
 lib_managed/
 src_managed/
+project/plugins
 project/boot/
-project/plugins/project/
-
-# Scala-IDE specific
-.scala_dependencies
+project/target
+project/project
