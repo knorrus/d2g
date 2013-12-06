@@ -1,11 +1,12 @@
-package com.example
+package org.d2g.service
 
 import akka.actor.Actor
 import spray.routing._
+import org.d2g.model.Product
 
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor
-class MyServiceActor extends Actor with MyService {
+class RestApiActor extends Actor with RestApi {
 
   // the HttpService trait defines only one abstract member, which
   // connects the services environment to the enclosing actor or test
@@ -19,13 +20,14 @@ class MyServiceActor extends Actor with MyService {
 
 
 // this trait defines our service behavior independently from the service actor
-trait MyService extends HttpService {
+trait RestApi extends JsonService {
 
-  val myRoute: Route = path("order" / IntNumber) {
+  val myRoute: Route = path("product" / IntNumber) {
     id =>
       get {
         complete {
-          "Received GET request for order " + id
+          val product = Product(id = Some(id), firstName = "Vasya", lastName = "Pupkin")
+          product
         }
       } ~
         put {

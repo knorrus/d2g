@@ -1,13 +1,14 @@
-package com.example
+package org.d2g
 
 import org.specs2.mutable.Specification
 import spray.testkit.Specs2RouteTest
 import spray.http._
 import StatusCodes._
+import org.d2g.service.RestApi
 
-class MyServiceSpec extends Specification with Specs2RouteTest with MyService {
+class MyServiceSpec extends Specification with Specs2RouteTest with RestApi {
   def actorRefFactory = system
-  
+
   "MyService" should {
 
     "return a greeting for GET requests to the root path" in {
