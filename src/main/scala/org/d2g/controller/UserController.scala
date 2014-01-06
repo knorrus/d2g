@@ -1,12 +1,12 @@
 package org.d2g.controller
 
-import org.scalatra.{AsyncResult, FutureSupport, ScalatraServlet}
+import org.scalatra.{Accepted, AsyncResult, FutureSupport, ScalatraServlet}
 import scala.concurrent.duration._
 import akka.actor.{ActorRef, ActorSystem}
 import scala.concurrent.ExecutionContext
 import akka.pattern.ask
 import akka.util.Timeout
-import org.d2g.service.GetUserByIdMessage
+import org.d2g.service.GetAllUsersMessage
 
 /**
  * @author knorr
@@ -25,12 +25,12 @@ class UserController(system: ActorSystem, userService: ActorRef) extends Scalatr
 
 	get("/users/:id") {
 		new AsyncResult {
-			val is = userService ? GetUserByIdMessage(params("id").toLong)
+			val is = userService ? GetAllUsersMessage
 		}
 	}
 
 	post("/users") {
-		// submit/create an article
+		Accepted()
 	}
 
 	put("/users/:id") {
