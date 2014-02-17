@@ -1,12 +1,14 @@
 package org.d2g.controller
 
-import org.scalatra.{Accepted, AsyncResult, FutureSupport, ScalatraServlet}
+import org.scalatra._
 import scala.concurrent.duration._
-import akka.actor.{ActorRef, ActorSystem}
-import scala.concurrent.ExecutionContext
-import akka.pattern.ask
-import akka.util.Timeout
-import org.d2g.service.GetAllUsersMessage
+import _root_.akka.actor.{ActorRef, ActorSystem}
+import scala.concurrent.{Future, ExecutionContext}
+import _root_.akka.pattern.ask
+import _root_.akka.util.Timeout
+import org.d2g.service.{GetUserByIdMessage, GetAllUsersMessage, SaveUserMessage}
+import reactivemongo.core.commands.LastError
+import org.d2g.activerecord.User
 
 /**
  * @author knorr
@@ -23,22 +25,34 @@ class UserController(system: ActorSystem, userService: ActorRef) extends Scalatr
 		contentType = formats("json")
 	}
 
-	get("/users/:id") {
+	get("/users") {
 		new AsyncResult {
 			val is = userService ? GetAllUsersMessage
 		}
 	}
 
+	get("/users/:id") {
+		new AsyncResult {
+			val is = userService ? GetUserByIdMessage
+		}
+	}
+
 	post("/users") {
-		Accepted()
+		val user = parsedBody.extract[User]
+		val message = SaveUserMessage(user)
+		new AsyncResult {
+			val is: Future[User] = (userService ? message).mapTo[User]
+
+		}
+
 	}
 
 	put("/users/:id") {
-		// update the article which has the specified :id
+		NotImplemented()
 	}
 
 	delete("/users/:id") {
-		// delete the article with the specified :id
+		NotImplemented()
 	}
 
 }

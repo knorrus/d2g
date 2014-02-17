@@ -1,12 +1,9 @@
 package org.d2g.service
 
 import akka.actor.Actor
-import org.d2g.domain.User
 import akka.event.Logging
-import reactivemongo.api.DefaultDB
-import reactivemongo.api.collections.default.BSONCollection
-import scala.concurrent.ExecutionContext
-import reactivemongo.bson.BSONDocument
+import akka.pattern.pipe
+import org.d2g.activerecord.User
 
 /**
  * @author knorr
@@ -15,66 +12,72 @@ import reactivemongo.bson.BSONDocument
  */
 
 /**
+ * Get specific user message.
  *
- * @param id
+ * @param id String BSON id representation of user which should be removed
  */
-case class GetUserByIdMessage(id: Long)
+case class GetUserByIdMessage(id: String)
 
 /**
- *
+ * Load all users message.
  */
 case class GetAllUsersMessage()
 
 /**
+ * Update user message.
  *
- * @param user
+ * @param user DTO object representing new state of existing user
  */
 case class UpdateUserMessage(user: User)
 
 /**
+ * Create user message.
  *
- * @param user
+ * @param user DTO object representing new user
  */
 case class SaveUserMessage(user: User)
 
 /**
+ * Delete user message.
  *
- * @param id
+ * @param id string BSON id representation of user which should be removed
  */
-case class DeleteUserMessage(id: Long)
+case class DeleteUserMessage(id: String)
 
-/**
- *
- * @param db
- */
-class UserServiceActor(db: DefaultDB) extends Actor {
+
+class UserServiceActor extends Actor {
 
 	val logger = Logging(context.system, this)
 
-	implicit val executionContext: ExecutionContext = context.dispatcher
-
-	implicit val collection = db[BSONCollection]("users")
+	implicit val ec = context.dispatcher
 
 	def receive = {
-		/*case GetUserByIdMessage(id) =>
+		case GetUserByIdMessage(id) =>
 			logger.info("GetUserByIdMessage")
-			sender ! getUserById(id)*/
+			val future = User.findById(id)
+			future pipeTo sender
+
 		case GetAllUsersMessage =>
-			logger.info("GetAllUsersMessage")
-			sender ! List(User(None, "vasya", "telka"))
-			collection.find(BSONDocument()).cursor[User].collect[List]().map(users => sender ! List(User(None, "vasya", "telka")))
+			logger.info("SaveUserMessage")
+			val futureUsers = User.findAll()
+			futureUsers pipeTo sender
+
+		case SaveUserMessage(user) =>
+			logger.info("SaveUserMessage")
+			val futureUsers = User.insert(user)
+			futureUsers pipeTo sender
+
+		case UpdateUserMessage(user) =>
+			logger.info("UpdateUserMessage")
+			sender ! "Not implemented yet"
+
+		case DeleteUserMessage(id) =>
+			logger.info("DeleteUserMessage")
+			val futureUsers = User.remove(id)
+			futureUsers pipeTo sender
+
 		case _ =>
 			logger.info("received unknown message")
-			sender ! List()
 
-		/*		case UpdateUserMessage(user) =>
-					logger.info("UpdateUserMessage")
-					sender ! updateUser(user)
-				case SaveUserMessage(user) =>
-					logger.info("SaveUserMessage")
-					sender ! saveUser(user)
-				case DeleteUserMessage(id) =>
-					logger.info("DeleteUserMessage")
-					sender ! deleteUser(id)*/
 	}
 }
