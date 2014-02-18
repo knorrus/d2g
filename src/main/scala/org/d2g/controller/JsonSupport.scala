@@ -8,7 +8,7 @@ import org.scalatra.json._
  * @version 0.1.0-SNAPSHOT
  * @since 05/01/2014
  */
-trait JsonSupport extends JacksonJsonSupport {
+trait JsonSupport extends NativeJsonSupport {
 
 	protected implicit val jsonFormats: Formats = DefaultFormats.withBigDecimal
 

@@ -35,7 +35,7 @@ case class UpdateUserMessage(user: User)
  *
  * @param user DTO object representing new user
  */
-case class SaveUserMessage(user: User)
+case class CreateUserMessage(user: User)
 
 /**
  * Delete user message.
@@ -62,10 +62,10 @@ class UserServiceActor extends Actor {
 			val futureUsers = User.findAll()
 			futureUsers pipeTo sender
 
-		case SaveUserMessage(user) =>
+		case CreateUserMessage(user) =>
 			logger.info("SaveUserMessage")
-			val futureUsers = User.insert(user)
-			futureUsers pipeTo sender
+			val futureUser = User.insert(user)
+			futureUser pipeTo sender
 
 		case UpdateUserMessage(user) =>
 			logger.info("UpdateUserMessage")
@@ -75,9 +75,7 @@ class UserServiceActor extends Actor {
 			logger.info("DeleteUserMessage")
 			val futureUsers = User.remove(id)
 			futureUsers pipeTo sender
-
 		case _ =>
 			logger.info("received unknown message")
-
 	}
 }

@@ -8,7 +8,9 @@ import javax.servlet.ServletContext
 
 class ScalatraBootstrap extends LifeCycle {
 
-	val actorSystem = ActorSystem("d2g")
+	implicit val actorSystem = ActorSystem("d2g")
+
+	implicit val swaggerDocs = new ApiSwagger
 
 	ReactiveMongo.init(actorSystem)
 
@@ -16,8 +18,12 @@ class ScalatraBootstrap extends LifeCycle {
 
 	override def init(context: ServletContext) {
 		ReactiveMongo.instance.setup()
-		context.mount(new UserController(actorSystem, userServiceActor), "/rest")
+
+		context mount(new ResourcesApp(), "/api-docs/*")
+		context.mount(new UserController(userServiceActor), "/rest/*")
 	}
+
+
 
 	override def destroy(context: ServletContext) {
 		actorSystem.shutdown()
