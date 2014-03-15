@@ -52,9 +52,9 @@ private[connector] class ReactiveMongoImpl(system: ActorSystem, nodes: Seq[Strin
 
 	private implicit val ec: ExecutionContext = system.dispatcher
 
-	lazy val driver = new MongoDriver
-	lazy val connection = driver.connection(nodes, authentications, channelsPerNode)
-	lazy val db = connection.db("d2g")
+	val driver = new MongoDriver
+	val connection = driver.connection(nodes, authentications, channelsPerNode)
+	val db = connection.db("d2g")
 
 	def shutdown(): Unit = {
 		connection.close()

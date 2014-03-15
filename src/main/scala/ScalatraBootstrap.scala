@@ -20,7 +20,7 @@ class ScalatraBootstrap extends LifeCycle {
 		ReactiveMongo.instance.setup()
 
 		context mount(new ResourcesApp(), "/api-docs/*")
-		context.mount(new UserController(userServiceActor), "/rest/*")
+		context.mount(new UserController(userServiceActor), "/api/user/*")
 	}
 
 

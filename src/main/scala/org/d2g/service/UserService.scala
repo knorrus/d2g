@@ -3,7 +3,9 @@ package org.d2g.service
 import akka.actor.Actor
 import akka.event.Logging
 import akka.pattern.pipe
-import org.d2g.activerecord.User
+import org.d2g.activerecord.{ServiceException, User}
+import org.d2g.dto.{PublicProfile, PrivateProfile}
+
 
 /**
  * @author knorr
@@ -28,14 +30,14 @@ case class GetAllUsersMessage()
  *
  * @param user DTO object representing new state of existing user
  */
-case class UpdateUserMessage(user: User)
+case class UpdateUserMessage(user: PrivateProfile)
 
 /**
  * Create user message.
  *
  * @param user DTO object representing new user
  */
-case class CreateUserMessage(user: User)
+case class CreateUserMessage(user: PrivateProfile)
 
 /**
  * Delete user message.
@@ -44,17 +46,17 @@ case class CreateUserMessage(user: User)
  */
 case class DeleteUserMessage(id: String)
 
-
 class UserServiceActor extends Actor {
 
 	val logger = Logging(context.system, this)
 
 	implicit val ec = context.dispatcher
 
+
 	def receive = {
 		case GetUserByIdMessage(id) =>
-			logger.info("GetUserByIdMessage")
-			val future = User.findById(id)
+			logger.info(id)
+			val future = User.findById(id).map {opt: Option[User] => opt.map(_.publicProfile)}
 			future pipeTo sender
 
 		case GetAllUsersMessage =>
@@ -62,10 +64,22 @@ class UserServiceActor extends Actor {
 			val futureUsers = User.findAll()
 			futureUsers pipeTo sender
 
-		case CreateUserMessage(user) =>
-			logger.info("SaveUserMessage")
-			val futureUser = User.insert(user)
-			futureUser pipeTo sender
+		case CreateUserMessage(profile) =>
+			logger.info("Going to create user")
+			val user = User.create(profile)
+			val future = user.save map {
+				case Left(exception) =>
+					logger.error("Got an error while trying to create user", exception)
+					Left(exception)
+				case Right(id) =>
+					logger.info(s"New user id is: $id")
+					Right(id)
+			} recover {
+				case e:Exception =>
+					logger.error("blala {}", e)
+					Left(e)
+			}
+			future pipeTo sender
 
 		case UpdateUserMessage(user) =>
 			logger.info("UpdateUserMessage")

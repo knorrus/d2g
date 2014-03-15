@@ -2,7 +2,7 @@ package org.d2g.activerecord.manager
 
 import scala.concurrent.Future
 import reactivemongo.api.indexes.IndexType.Ascending
-import org.d2g.activerecord.User
+import org.d2g.activerecord.{ResourceWithoutIdException, User}
 import reactivemongo.bson._
 import org.joda.time.DateTime
 import reactivemongo.bson.BSONDateTime
@@ -54,15 +54,14 @@ trait UserEntityManager extends MongoEntityManager[User] {
 
 		def write(doc: User): BSONDocument = {
 			BSONDocument(
-				"_id" -> doc._id.getOrElse(BSONObjectID.generate),
+				"_id" -> doc._id.getOrElse(throw new ResourceWithoutIdException("User doesn't have Id field specified")),
 				"username" -> doc.username,
 				"email" -> doc.email,
 				"passwordHash" -> doc.passwordHash,
 				"salt" -> doc.salt,
-				"salt" -> doc.salt,
 				"firstName" -> doc.firstName,
 				"lastName" -> doc.lastName,
-				"avatarUrl" -> doc.email,
+				"avatarUrl" -> doc.avatarUrl,
 				"location" -> doc.location,
 				"isActive" -> doc.isActive,
 				"isAdmin" -> doc.isAdmin,
@@ -72,4 +71,5 @@ trait UserEntityManager extends MongoEntityManager[User] {
 			)
 		}
 	}
+
 }

@@ -20,7 +20,7 @@ trait ActiveRecord[T <: IdentifiableRecord] {
 
 	def delete: Future[Either[ServiceException, Boolean]]
 
-	def save: Future[Either[ServiceException, T]]
+	def save: Future[Either[ServiceException, String]]
 }
 
 /**
@@ -65,6 +65,11 @@ object DBServiceException {
  */
 case class DuplicateResourceException(
 																			 message: String = "error.duplicate.resource",
+																			 nestedException: Throwable = null
+																			 ) extends ServiceException
+
+case class ResourceWithoutIdException(
+																			 message: String = "error.resource.without.unique.indentifier",
 																			 nestedException: Throwable = null
 																			 ) extends ServiceException
 

@@ -167,9 +167,9 @@ trait MongoEntityManager[T <: IdentifiableRecord] {
 	 * @param document Model to persist in collection
 	 * @return Future with newly inserted document in case success, future with service exception otherwise
 	 */
-	def insert(document: T): Future[Either[ServiceException, T]] = {
+	def insert(document: T): Future[Either[ServiceException, String]] = {
 		recover(collection.insert(document)) {
-			document
+			document._id.get.stringify
 		}
 	}
 
