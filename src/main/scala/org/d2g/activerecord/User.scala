@@ -62,17 +62,4 @@ case class User(
 	override def toString: String = s"User(id: ${_id}, name: $username)"
 }
 
-object User extends UserEntityManager {
-
-	import SecurityUtils._
-
-	def create(profile: PrivateProfile): User = {
-		val _id = Some(BSONObjectID.generate)
-		val salt = randomSalt
-		val password = profile.password.getOrElse(throw new UnexpectedServiceException("No password passed"))
-		val hash = sha256(sha256(password).concat(salt))
-		val isAdmin = false
-		val isActive = false
-		User(_id, profile.login, profile.email, hash, salt, profile.firstName, profile.lastName, profile.avatar, profile.location, isActive, isAdmin)
-	}
-}
+object User extends UserEntityManager {}

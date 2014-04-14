@@ -69,7 +69,7 @@ case class DuplicateResourceException(
 																			 ) extends ServiceException
 
 case class ResourceWithoutIdException(
-																			 message: String = "error.resource.without.unique.indentifier",
+																			 message: String = "error.resource.without.unique.identifier",
 																			 nestedException: Throwable = null
 																			 ) extends ServiceException
 
@@ -84,10 +84,16 @@ case class OperationNotAllowedException(
 																				 nestedException: Throwable = null
 																				 ) extends ServiceException
 
+case class InconsistentResourceException(
+																					properties: Seq[String] = null,
+																					message: String = "error.resource.with.incorrect.property",
+																					nestedException: Throwable = null
+																					) extends ServiceException
+
 /**
  * Document with specified id not found in collection.
  *
- * @param id - identifier on document
+ * @param id - identifier property
  * @param message - error message
  * @param nestedException - original exception
  */

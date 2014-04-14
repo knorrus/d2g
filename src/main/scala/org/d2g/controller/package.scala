@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest
 object UrlUtils {
 
 
-	def createUriForUser(userId: String)(implicit req: HttpServletRequest) =
+	def createUrlForUser(userId: String)(implicit req: HttpServletRequest) =
 		s"${req.getScheme}://${req.getServerName}:${req.getServerPort}${req.getServletPath}/$userId"
 
 

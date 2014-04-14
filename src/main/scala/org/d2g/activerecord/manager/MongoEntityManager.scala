@@ -33,14 +33,14 @@ trait MongoEntityManager[T <: IdentifiableRecord] {
 	/**
 	 * Execution context for ReactiveMongo Futures support (used dispatcher of the existed akka system)
 	 */
-	implicit val ec: ExecutionContext = ReactiveMongo.instance.executor()
+	implicit val ec: ExecutionContext = ReactiveMongo.executor
 
 	/**
 	 * Get instance of connected to app Mongo database.
 	 *
 	 * @return Application database
 	 */
-	protected def db = ReactiveMongo.instance.db()
+	protected def db = ReactiveMongo.instance.db
 
 	/**
 	 * Get MongoDB collection for this DAO.

@@ -2,9 +2,11 @@ package org.d2g.activerecord.manager
 
 import scala.concurrent.Future
 import reactivemongo.api.indexes.IndexType.Ascending
-import org.d2g.activerecord.{ResourceWithoutIdException, User}
+import org.d2g.activerecord.{UnexpectedServiceException, ResourceWithoutIdException, User}
 import reactivemongo.bson._
 import org.joda.time.DateTime
+import org.d2g.utils.SecurityUtils
+import org.d2g.dto.PrivateProfile
 import reactivemongo.bson.BSONDateTime
 import scala.Some
 import reactivemongo.api.collections.default.BSONCollection
@@ -15,6 +17,8 @@ import reactivemongo.api.collections.default.BSONCollection
  * @since 09/01/2014
  */
 trait UserEntityManager extends MongoEntityManager[User] {
+
+	import SecurityUtils._
 
 	implicit val reader: BSONDocumentReader[User] = UserReader
 
@@ -28,6 +32,26 @@ trait UserEntityManager extends MongoEntityManager[User] {
 		Future.sequence(List(
 			ensureIndex(List("email" -> Ascending), unique = true)
 		))
+	}
+
+	def getByEmail(email: String): Future[Option[User]] = {
+		findByAttribute("email", email) map {
+			users =>
+				if (users.isEmpty)
+					None
+				else
+					Some(users.head)
+		}
+	}
+
+	def create(profile: PrivateProfile): User = {
+		val _id = Some(BSONObjectID.generate)
+		val salt = randomSalt
+		val password = profile.password.getOrElse(throw new UnexpectedServiceException("No password passed"))
+		val hash = sha256(sha256(password).concat(salt))
+		val isAdmin = false
+		val isActive = false
+		User(_id, profile.login, profile.email, hash, salt, profile.firstName, profile.lastName, profile.avatar, profile.location, isActive, isAdmin)
 	}
 
 	object UserReader extends BSONDocumentReader[User] {
